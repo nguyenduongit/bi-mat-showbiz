@@ -3,17 +3,18 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App.tsx";
-import { PostRedirect } from "./PostRedirect.tsx";
-import "./index.css"; // Import global styles
+import { PostPage } from "./PostPage.tsx"; // Import component mới
+import "./index.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // Trang quản lý
+    element: <App />,
   },
   {
+    // Thêm lại route cho trang chi tiết bài viết
     path: "/posts/:slug",
-    element: <PostRedirect />, // Trang xử lý chuyển hướng
+    element: <PostPage />,
   },
 ]);
 

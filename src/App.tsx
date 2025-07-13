@@ -11,10 +11,9 @@ type Post = {
   description: string;
   image: string;
   slug: string;
-  externalUrl: string; // Giữ lại trường này trong kiểu dữ liệu
 };
 
-const initialFormState: Omit<Post, "id" | "created_at" | "externalUrl"> = {
+const initialFormState: Omit<Post, "id" | "created_at"> = {
   title: "",
   description: "",
   image: "",
@@ -57,8 +56,6 @@ export default function App() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let error;
-    // ** THAY ĐỔI LINK CỐ ĐỊNH CỦA BẠN TẠI ĐÂY **
-    const fixedExternalUrl = "https://s.shopee.vn/LcDcNkYTc";
 
     if (editingSlug) {
       const { error: updateError } = await supabase
@@ -67,7 +64,6 @@ export default function App() {
           title: form.title,
           description: form.description,
           image: form.image,
-          externalUrl: fixedExternalUrl, // Luôn cập nhật link cố định
         })
         .eq("slug", editingSlug);
       error = updateError;
@@ -75,7 +71,6 @@ export default function App() {
       const { error: insertError } = await supabase.from("posts").insert([
         {
           ...form,
-          externalUrl: fixedExternalUrl, // Luôn thêm link cố định
         },
       ]);
       error = insertError;
@@ -99,7 +94,6 @@ export default function App() {
 
   const handleEdit = (post: Post) => {
     setEditingSlug(post.slug);
-    // Không cần đưa externalUrl vào form nữa
     setForm({
       title: post.title,
       description: post.description,
@@ -126,7 +120,6 @@ export default function App() {
           required
           className={styles.input}
         />
-        {/* ĐÃ XÓA TRƯỜNG INPUT CHO externalUrl */}
         <input
           name="description"
           placeholder="Mô tả"
