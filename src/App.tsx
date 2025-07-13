@@ -11,20 +11,19 @@ type Post = {
   description: string;
   image: string;
   slug: string;
-  externalUrl: string;
+  externalUrl: string; // Giữ lại trường này trong kiểu dữ liệu
 };
 
-const initialFormState: Post = {
+const initialFormState: Omit<Post, "id" | "created_at" | "externalUrl"> = {
   title: "",
   description: "",
   image: "",
   slug: "",
-  externalUrl: "",
 };
 
 export default function App() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [form, setForm] = useState<Post>(initialFormState);
+  const [form, setForm] = useState(initialFormState);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function App() {
     }
   }
 
-  // ... (sao chép các hàm handleChange, handleSubmit, handleDelete, handleEdit, handleCancelEdit từ file app/page.tsx gốc)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "title" && !editingSlug) {
@@ -59,6 +57,9 @@ export default function App() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let error;
+    // ** THAY ĐỔI LINK CỐ ĐỊNH CỦA BẠN TẠI ĐÂY **
+    const fixedExternalUrl = "https://s.shopee.vn/LcDcNkYTc";
+
     if (editingSlug) {
       const { error: updateError } = await supabase
         .from("posts")
@@ -66,18 +67,15 @@ export default function App() {
           title: form.title,
           description: form.description,
           image: form.image,
-          externalUrl: form.externalUrl,
+          externalUrl: fixedExternalUrl, // Luôn cập nhật link cố định
         })
         .eq("slug", editingSlug);
       error = updateError;
     } else {
       const { error: insertError } = await supabase.from("posts").insert([
         {
-          title: form.title,
-          description: form.description,
-          image: form.image,
-          slug: form.slug,
-          externalUrl: form.externalUrl,
+          ...form,
+          externalUrl: fixedExternalUrl, // Luôn thêm link cố định
         },
       ]);
       error = insertError;
@@ -101,7 +99,13 @@ export default function App() {
 
   const handleEdit = (post: Post) => {
     setEditingSlug(post.slug);
-    setForm(post);
+    // Không cần đưa externalUrl vào form nữa
+    setForm({
+      title: post.title,
+      description: post.description,
+      image: post.image,
+      slug: post.slug,
+    });
   };
 
   const handleCancelEdit = () => {
@@ -109,13 +113,11 @@ export default function App() {
     setForm(initialFormState);
   };
 
-  // Sao chép phần JSX của component Home từ app/page.tsx vào đây
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>Trang Quản Lý Bài Viết</h1>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        {/* ... (toàn bộ nội dung form) */}
         <input
           name="title"
           placeholder="Tiêu đề"
@@ -124,14 +126,7 @@ export default function App() {
           required
           className={styles.input}
         />
-        <input
-          name="externalUrl"
-          placeholder="Link chuyển hướng"
-          value={form.externalUrl}
-          onChange={handleChange}
-          required
-          className={styles.input}
-        />
+        {/* ĐÃ XÓA TRƯỜNG INPUT CHO externalUrl */}
         <input
           name="description"
           placeholder="Mô tả"
@@ -168,7 +163,6 @@ export default function App() {
       <ul className={styles.postList}>
         {posts.map((post) => (
           <li key={post.slug} className={styles.postItem}>
-            {/* Cập nhật link để sử dụng router của Vite */}
             <a
               href={`/posts/${post.slug}`}
               target="_blank"
