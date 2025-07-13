@@ -2,8 +2,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async"; // 1. Import HelmetProvider
 import App from "./App.tsx";
-import { PostPage } from "./PostPage.tsx"; // Import component mới
+import { PostPage } from "./PostPage.tsx";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -12,7 +13,6 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    // Thêm lại route cho trang chi tiết bài viết
     path: "/posts/:slug",
     element: <PostPage />,
   },
@@ -20,6 +20,9 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    {/* 2. Bọc RouterProvider trong HelmetProvider */}
+    <HelmetProvider>
+      <RouterProvider router={router} />
+    </HelmetProvider>
   </React.StrictMode>
 );
